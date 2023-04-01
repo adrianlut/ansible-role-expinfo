@@ -1,0 +1,5 @@
+---
+# defaults file for expinfo
+
+repo_url: "https://github.com/adrianlut/expinfo.git"
+install_path: "/opt/expinfo"

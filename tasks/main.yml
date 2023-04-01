@@ -1,0 +1,65 @@
+---
+# tasks file for expinfo
+
+- name: Include variables
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: Ensure git is installed
+  ansible.builtin.apt:
+    name: git
+    state: present
+    update_cache: true
+
+- name: Clone repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ install_path }}"
+    version: "{{ branch_name }}"
+    accept_hostkey: true
+  become: true
+
+- name: Link run_exp
+  ansible.builtin.file:
+    src: "{{ install_path }}/run_exp"
+    dest: /usr/local/bin/run_exp
+    owner: root
+    group: root
+    state: link
+  become: true
+
+- name: Link motd
+  ansible.builtin.file:
+    src: "{{ install_path }}/99-expinfo"
+    dest: /etc/update-motd.d/99-expinfo
+    owner: root
+    group: root
+    state: link
+  become: true
+
+- name: Copy service file
+  ansible.builtin.copy:
+    src: "{{ install_path }}/expinfo.service"
+    dest: /etc/systemd/system/expinfo.service
+    owner: root
+    group: root
+    mode: preserve
+    remote_src: yes
+  become: true
+
+- name: Install command prompt to profile
+  ansible.builtin.template:
+    src: prompt.j2
+    dest: /etc/profile.d/prompt.sh
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Activate expinfo service
+  ansible.builtin.systemd:
+    name: expinfo
+    state: started
+    enabled: true
+  tags: notest
+  become: true

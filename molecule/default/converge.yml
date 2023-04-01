@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include melhindi.intel_sgx_ssl"
+      ansible.builtin.include_role:
+        name: "adrianlut.expinfo"
